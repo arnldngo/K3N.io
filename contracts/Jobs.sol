@@ -89,7 +89,9 @@ contract Jobs is IJobs, ERC721, Ownable, ReentrancyGuard{
         jobInfo[jobId] = job;
 
         // Lock token reward and budget
-        rewardToken.transferFrom(msg.sender, address(this), budget + reward);
+        bool result = rewardToken.transferFrom(msg.sender, address(this), budget + reward);
+
+        if (!result) revert("Transfer faild"); 
 
         emit CreateJob(msg.sender, budget, reward, jobId);
     }
@@ -200,7 +202,8 @@ contract Jobs is IJobs, ERC721, Ownable, ReentrancyGuard{
             kolsInfo[job.kol].tokenIds.push(tokenIdCounter);
             _safeMint(job.kol, tokenIdCounter);
 
-            rewardToken.transfer(msg.sender, job.reward);
+            bool result = rewardToken.transfer(msg.sender, job.reward);
+             if (!result) revert("Transfer faild"); 
         }
 
         emit CompletedJob(_jobId, job.kol);
@@ -212,7 +215,8 @@ contract Jobs is IJobs, ERC721, Ownable, ReentrancyGuard{
         require(jobInfo[_jobId].creator == msg.sender, "Jobs: Must be the creator");
         JobInfo memory job = jobInfo[_jobId];
 
-        rewardToken.transfer(msg.sender, job.reward + job.budget );
+        bool result = rewardToken.transfer(msg.sender, job.reward + job.budget );
+         if (!result) revert("Transfer faild"); 
         delete jobInfo[_jobId];
     }
 
